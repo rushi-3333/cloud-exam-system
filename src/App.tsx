@@ -6,6 +6,8 @@ import LoginPage from '@/pages/auth/LoginPage';
 import RegisterPage from '@/pages/auth/RegisterPage';
 import ForgotPasswordPage from '@/pages/auth/ForgotPasswordPage';
 import StudentDashboardPage from '@/pages/student/DashboardPage';
+import StudentExamsPage from '@/pages/student/ExamsPage';
+import ExamInstructionsPage from '@/pages/student/ExamInstructionsPage';
 import AdminDashboardPage from '@/pages/admin/DashboardPage';
 import AdminExamsPage from '@/pages/admin/ExamsPage';
 import CreateExamPage from '@/pages/admin/CreateExamPage';
@@ -26,6 +28,22 @@ export default function App() {
             element={
               <ProtectedRoute requireRole="student">
                 <StudentDashboardPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/student/exams"
+            element={
+              <ProtectedRoute requireRole="student">
+                <StudentExamsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/student/exams/:id"
+            element={
+              <ProtectedRoute requireRole="student">
+                <ExamInstructionsPage />
               </ProtectedRoute>
             }
           />

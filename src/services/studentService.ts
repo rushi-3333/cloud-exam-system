@@ -1,0 +1,61 @@
+﻿import { supabase } from '@/lib/supabaseClient';
+import type { Exam } from '@/types/exam';
+import type { ExamAttempt, ExamResult } from '@/types/attempt';
+
+export async function fetchPublishedExams(): Promise<Exam[]> {
+  const { data, error } = await supabase
+    .from('exams')
+    .select('*')
+    .eq('status', 'published')
+    .order('start_at', { ascending: true });
+  if (error) throw error;
+  return (data ?? []) as unknown as Exam[];
+}
+
+export async function fetchExamById(id: string): Promise<Exam> {
+  const { data, error } = await supabase.from('exams').select('*').eq('id', id).single();
+  if (error) throw error;
+  return data as unknown as Exam;
+}
+
+export async function fetchMyAttempts(studentId: string): Promise<ExamAttempt[]> {
+  const { data, error } = await supabase
+    .from('exam_attempts')
+    .select('*')
+    .eq('student_id', studentId)
+    .order('started_at', { ascending: false });
+  if (error) throw error;
+  return (data ?? []) as unknown as ExamAttempt[];
+}
+
+export async function fetchMyResults(studentId: string): Promise<(ExamResult & { exam: Exam })[]> {
+  const { data, error } = await supabase
+    .from('results')
+    .select('*, exam_attempts!inner(student_id, exam_id, exams(*))')
+    .eq('exam_attempts.student_id', studentId)
+    .order('created_at', { ascending: false });
+  if (error) throw error;
+
+  type Row = ExamResult & {
+    exam_attempts: { exams: Exam };
+  };
+  return ((data ?? []) as unknown as Row[]).map((row) => ({
+    ...row,
+    exam: row.exam_attempts.exams,
+  }));
+}
+
+export async function findActiveAttempt(
+  examId: string,
+  studentId: string
+): Promise<ExamAttempt | null> {
+  const { data, error } = await supabase
+    .from('exam_attempts')
+    .select('*')
+    .eq('exam_id', examId)
+    .eq('student_id', studentId)
+    .eq('status', 'in_progress')
+    .maybeSingle();
+  if (error) throw error;
+  return data as unknown as ExamAttempt | null;
+}
