@@ -7,6 +7,9 @@ import RegisterPage from '@/pages/auth/RegisterPage';
 import ForgotPasswordPage from '@/pages/auth/ForgotPasswordPage';
 import StudentDashboardPage from '@/pages/student/DashboardPage';
 import AdminDashboardPage from '@/pages/admin/DashboardPage';
+import AdminExamsPage from '@/pages/admin/ExamsPage';
+import CreateExamPage from '@/pages/admin/CreateExamPage';
+import ExamQuestionsPage from '@/pages/admin/ExamQuestionsPage';
 
 export default function App() {
   return (
@@ -32,6 +35,30 @@ export default function App() {
             element={
               <ProtectedRoute requireRole="admin">
                 <AdminDashboardPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/exams"
+            element={
+              <ProtectedRoute requireRole="admin">
+                <AdminExamsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/exams/create"
+            element={
+              <ProtectedRoute requireRole="admin">
+                <CreateExamPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/exams/:id/questions"
+            element={
+              <ProtectedRoute requireRole="admin">
+                <ExamQuestionsPage />
               </ProtectedRoute>
             }
           />
