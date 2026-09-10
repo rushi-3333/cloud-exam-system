@@ -7,7 +7,7 @@ import {
   fetchQuestionsForAttempt,
   fetchAnswers,
   saveAnswer,
-  submitAttempt,
+  submitExamViaFunction,
   type QuestionForAttempt,
   type AnswerState,
 } from '@/services/examAttemptService';
@@ -95,7 +95,7 @@ export default function ExamAttemptPage() {
     submittedRef.current = true;
     setSubmitting(true);
     try {
-      await submitAttempt(attempt.id);
+      await submitExamViaFunction(attempt.id);
     } catch (err) {
       console.error(err);
     } finally {

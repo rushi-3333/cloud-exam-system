@@ -99,11 +99,9 @@ export async function saveAnswer(
   if (error) throw error;
 }
 
-export async function submitAttempt(attemptId: string): Promise<void> {
-  const { error } = await supabase
-    .from('exam_attempts')
-    .update({ status: 'submitted', submitted_at: new Date().toISOString() })
-    .eq('id', attemptId)
-    .eq('status', 'in_progress');
+export async function submitExamViaFunction(attemptId: string): Promise<void> {
+  const { error } = await supabase.functions.invoke('submit-exam', {
+    body: { attempt_id: attemptId },
+  });
   if (error) throw error;
 }
