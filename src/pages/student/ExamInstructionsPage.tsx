@@ -2,7 +2,7 @@
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { StudentLayout } from '@/layouts/StudentLayout';
 import { useAuth } from '@/contexts/AuthContext';
-import { fetchExamById, findActiveAttempt } from '@/services/studentService';
+import { fetchExamById, findActiveAttempt, findCompletedAttempt } from '@/services/studentService';
 import type { Exam } from '@/types/exam';
 
 export default function ExamInstructionsPage() {
@@ -11,15 +11,17 @@ export default function ExamInstructionsPage() {
   const navigate = useNavigate();
   const [exam, setExam] = useState<Exam | null>(null);
   const [hasActiveAttempt, setHasActiveAttempt] = useState(false);
+  const [alreadyAttempted, setAlreadyAttempted] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!id || !user) return;
-    Promise.all([fetchExamById(id), findActiveAttempt(id, user.id)])
-      .then(([examData, activeAttempt]) => {
+    Promise.all([fetchExamById(id), findActiveAttempt(id, user.id), findCompletedAttempt(id, user.id)])
+      .then(([examData, activeAttempt, completedAttempt]) => {
         setExam(examData);
         setHasActiveAttempt(!!activeAttempt);
+        setAlreadyAttempted(!!completedAttempt);
       })
       .catch((err: unknown) => setError(err instanceof Error ? err.message : 'Failed to load'))
       .finally(() => setLoading(false));
@@ -79,7 +81,17 @@ export default function ExamInstructionsPage() {
           </ul>
         </div>
 
-        {!isOpen && (
+        {alreadyAttempted && !hasActiveAttempt && (
+          <p className="mt-6 text-sm text-slate-500">
+            You've already attempted this exam. Check{' '}
+            <Link to="/student/results" className="text-brand-600 hover:underline">
+              your results
+            </Link>
+            .
+          </p>
+        )}
+
+        {!isOpen && !alreadyAttempted && (
           <p className="mt-6 text-sm text-red-600">
             This exam is not currently open (window: {new Date(exam.start_at).toLocaleString()} –{' '}
             {new Date(exam.end_at).toLocaleString()}).
@@ -87,11 +99,11 @@ export default function ExamInstructionsPage() {
         )}
 
         <button
-          disabled={!isOpen}
+          disabled={!isOpen || (alreadyAttempted && !hasActiveAttempt)}
           onClick={() => navigate(`/student/exams/${exam.id}/attempt`)}
           className="mt-6 rounded-lg bg-brand-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-50"
         >
-          {hasActiveAttempt ? 'Resume exam' : 'Start exam'}
+          {hasActiveAttempt ? 'Resume exam' : alreadyAttempted ? 'Already attempted' : 'Start exam'}
         </button>
       </div>
     </StudentLayout>

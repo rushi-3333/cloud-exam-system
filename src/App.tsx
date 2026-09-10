@@ -8,6 +8,8 @@ import ForgotPasswordPage from '@/pages/auth/ForgotPasswordPage';
 import StudentDashboardPage from '@/pages/student/DashboardPage';
 import StudentExamsPage from '@/pages/student/ExamsPage';
 import ExamInstructionsPage from '@/pages/student/ExamInstructionsPage';
+import ExamAttemptPage from '@/pages/student/ExamAttemptPage';
+import StudentResultsPage from '@/pages/student/ResultsPage';
 import AdminDashboardPage from '@/pages/admin/DashboardPage';
 import AdminExamsPage from '@/pages/admin/ExamsPage';
 import CreateExamPage from '@/pages/admin/CreateExamPage';
@@ -44,6 +46,22 @@ export default function App() {
             element={
               <ProtectedRoute requireRole="student">
                 <ExamInstructionsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/student/exams/:id/attempt"
+            element={
+              <ProtectedRoute requireRole="student">
+                <ExamAttemptPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/student/results"
+            element={
+              <ProtectedRoute requireRole="student">
+                <StudentResultsPage />
               </ProtectedRoute>
             }
           />

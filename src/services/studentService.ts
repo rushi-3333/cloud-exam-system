@@ -59,3 +59,20 @@ export async function findActiveAttempt(
   if (error) throw error;
   return data as unknown as ExamAttempt | null;
 }
+
+export async function findCompletedAttempt(
+  examId: string,
+  studentId: string
+): Promise<ExamAttempt | null> {
+  const { data, error } = await supabase
+    .from('exam_attempts')
+    .select('*')
+    .eq('exam_id', examId)
+    .eq('student_id', studentId)
+    .in('status', ['submitted', 'auto_submitted', 'expired'])
+    .order('started_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (error) throw error;
+  return data as unknown as ExamAttempt | null;
+}
