@@ -136,6 +136,65 @@ export async function createQuestion(
   if (oError) throw oError;
 }
 
+export interface ResultWithDetails {
+  id: string;
+  attempt_id: string;
+  marks_obtained: number;
+  total_marks: number;
+  percentage: number;
+  correct_count: number;
+  wrong_count: number;
+  unanswered_count: number;
+  pass_status: 'pass' | 'fail';
+  created_at: string;
+  student_name: string;
+  exam_title: string;
+  exam_subject: string;
+}
+
+export async function fetchAllResults(): Promise<ResultWithDetails[]> {
+  const { data, error } = await supabase
+    .from('results')
+    .select(
+      '*, exam_attempts!inner(exam_id, student_id, exams(title, subject), profiles(full_name))'
+    )
+    .order('created_at', { ascending: false });
+  if (error) throw error;
+
+  type Row = {
+    id: string;
+    attempt_id: string;
+    marks_obtained: number;
+    total_marks: number;
+    percentage: number;
+    correct_count: number;
+    wrong_count: number;
+    unanswered_count: number;
+    pass_status: 'pass' | 'fail';
+    created_at: string;
+    exam_attempts: {
+      exams: { title: string; subject: string };
+      profiles: { full_name: string };
+    };
+  };
+
+  return ((data ?? []) as unknown as Row[]).map((r) => ({
+    id: r.id,
+    attempt_id: r.attempt_id,
+    marks_obtained: r.marks_obtained,
+    total_marks: r.total_marks,
+    percentage: r.percentage,
+    correct_count: r.correct_count,
+    wrong_count: r.wrong_count,
+    unanswered_count: r.unanswered_count,
+    pass_status: r.pass_status,
+    created_at: r.created_at,
+    student_name: r.exam_attempts?.profiles?.full_name ?? 'Unknown',
+    exam_title: r.exam_attempts?.exams?.title ?? 'Unknown exam',
+    exam_subject: r.exam_attempts?.exams?.subject ?? '',
+  }));
+}
+
 export async function deleteQuestion(id: string): Promise<void> {
   const { error } = await supabase.from('questions').delete().eq('id', id);
   if (error) throw error;

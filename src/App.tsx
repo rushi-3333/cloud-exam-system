@@ -15,6 +15,8 @@ import AdminExamsPage from '@/pages/admin/ExamsPage';
 import CreateExamPage from '@/pages/admin/CreateExamPage';
 import EditExamPage from '@/pages/admin/EditExamPage';
 import ExamQuestionsPage from '@/pages/admin/ExamQuestionsPage';
+import AdminResultsPage from '@/pages/admin/ResultsPage';
+import AdminAnalyticsPage from '@/pages/admin/AnalyticsPage';
 
 export default function App() {
   return (
@@ -104,6 +106,22 @@ export default function App() {
             element={
               <ProtectedRoute requireRole="admin">
                 <ExamQuestionsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/results"
+            element={
+              <ProtectedRoute requireRole="admin">
+                <AdminResultsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/analytics"
+            element={
+              <ProtectedRoute requireRole="admin">
+                <AdminAnalyticsPage />
               </ProtectedRoute>
             }
           />
