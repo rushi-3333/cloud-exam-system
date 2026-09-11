@@ -13,6 +13,7 @@ import StudentResultsPage from '@/pages/student/ResultsPage';
 import AdminDashboardPage from '@/pages/admin/DashboardPage';
 import AdminExamsPage from '@/pages/admin/ExamsPage';
 import CreateExamPage from '@/pages/admin/CreateExamPage';
+import EditExamPage from '@/pages/admin/EditExamPage';
 import ExamQuestionsPage from '@/pages/admin/ExamQuestionsPage';
 
 export default function App() {
@@ -87,6 +88,14 @@ export default function App() {
             element={
               <ProtectedRoute requireRole="admin">
                 <CreateExamPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/exams/:id/edit"
+            element={
+              <ProtectedRoute requireRole="admin">
+                <EditExamPage />
               </ProtectedRoute>
             }
           />

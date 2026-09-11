@@ -80,7 +80,7 @@ export default function AdminExamsPage() {
                   <tr key={exam.id} className="border-b border-slate-100 last:border-0">
                     <td className="px-4 py-3">
                       <Link
-                        to={`/admin/exams/${exam.id}`}
+                        to={`/admin/exams/${exam.id}/edit`}
                         className="font-medium text-slate-900 hover:text-brand-600"
                       >
                         {exam.title}
@@ -101,6 +101,12 @@ export default function AdminExamsPage() {
                     <td className="px-4 py-3 text-right">
                       <div className="flex justify-end gap-2">
                         <Link
+                          to={`/admin/exams/${exam.id}/edit`}
+                          className="text-xs font-medium text-slate-600 hover:underline"
+                        >
+                          Edit
+                        </Link>
+                        <Link
                           to={`/admin/exams/${exam.id}/questions`}
                           className="text-xs font-medium text-brand-600 hover:underline"
                         >
@@ -120,6 +126,14 @@ export default function AdminExamsPage() {
                             className="text-xs font-medium text-red-600 hover:underline"
                           >
                             Close
+                          </button>
+                        )}
+                        {exam.status === 'closed' && (
+                          <button
+                            onClick={() => void handleStatusChange(exam.id, 'published')}
+                            className="text-xs font-medium text-emerald-600 hover:underline"
+                          >
+                            Reopen
                           </button>
                         )}
                       </div>
