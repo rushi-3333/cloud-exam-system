@@ -195,6 +195,42 @@ export async function fetchAllResults(): Promise<ResultWithDetails[]> {
   }));
 }
 
+export interface ActiveAttempt {
+  id: string;
+  student_name: string;
+  exam_title: string;
+  started_at: string;
+  server_deadline_at: string;
+  status: string;
+}
+
+export async function fetchActiveAttempts(): Promise<ActiveAttempt[]> {
+  const { data, error } = await supabase
+    .from('exam_attempts')
+    .select('id, started_at, server_deadline_at, status, profiles(full_name), exams(title)')
+    .eq('status', 'in_progress')
+    .order('started_at', { ascending: false });
+  if (error) throw error;
+
+  type Row = {
+    id: string;
+    started_at: string;
+    server_deadline_at: string;
+    status: string;
+    profiles: { full_name: string };
+    exams: { title: string };
+  };
+
+  return ((data ?? []) as unknown as Row[]).map((r) => ({
+    id: r.id,
+    student_name: r.profiles?.full_name ?? 'Unknown',
+    exam_title: r.exams?.title ?? 'Unknown exam',
+    started_at: r.started_at,
+    server_deadline_at: r.server_deadline_at,
+    status: r.status,
+  }));
+}
+
 export async function deleteQuestion(id: string): Promise<void> {
   const { error } = await supabase.from('questions').delete().eq('id', id);
   if (error) throw error;

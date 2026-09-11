@@ -10,6 +10,7 @@ import StudentExamsPage from '@/pages/student/ExamsPage';
 import ExamInstructionsPage from '@/pages/student/ExamInstructionsPage';
 import ExamAttemptPage from '@/pages/student/ExamAttemptPage';
 import StudentResultsPage from '@/pages/student/ResultsPage';
+import StudentNotificationsPage from '@/pages/student/NotificationsPage';
 import AdminDashboardPage from '@/pages/admin/DashboardPage';
 import AdminExamsPage from '@/pages/admin/ExamsPage';
 import CreateExamPage from '@/pages/admin/CreateExamPage';
@@ -17,6 +18,8 @@ import EditExamPage from '@/pages/admin/EditExamPage';
 import ExamQuestionsPage from '@/pages/admin/ExamQuestionsPage';
 import AdminResultsPage from '@/pages/admin/ResultsPage';
 import AdminAnalyticsPage from '@/pages/admin/AnalyticsPage';
+import AdminNotificationsPage from '@/pages/admin/NotificationsPage';
+import LiveMonitoringPage from '@/pages/admin/LiveMonitoringPage';
 
 export default function App() {
   return (
@@ -65,6 +68,14 @@ export default function App() {
             element={
               <ProtectedRoute requireRole="student">
                 <StudentResultsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/student/notifications"
+            element={
+              <ProtectedRoute requireRole="student">
+                <StudentNotificationsPage />
               </ProtectedRoute>
             }
           />
@@ -122,6 +133,22 @@ export default function App() {
             element={
               <ProtectedRoute requireRole="admin">
                 <AdminAnalyticsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/notifications"
+            element={
+              <ProtectedRoute requireRole="admin">
+                <AdminNotificationsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/live-monitoring"
+            element={
+              <ProtectedRoute requireRole="admin">
+                <LiveMonitoringPage />
               </ProtectedRoute>
             }
           />
