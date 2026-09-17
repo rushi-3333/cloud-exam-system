@@ -12,6 +12,7 @@ import {
   type AnswerState,
 } from '@/services/examAttemptService';
 import { useServerCountdown } from '@/hooks/useServerCountdown';
+import { useProctoring } from '@/hooks/useProctoring';
 import { QuestionNavigator } from '@/components/QuestionNavigator';
 import type { Exam } from '@/types/exam';
 import type { ExamAttempt } from '@/types/attempt';
@@ -107,6 +108,7 @@ export default function ExamAttemptPage() {
   const { label: timeLabel, isExpired } = useServerCountdown(deadline, () => {
     void handleSubmit();
   });
+  const { showWarning } = useProctoring(attempt?.id ?? null);
 
   async function handleSelectOption(questionId: string, optionId: string) {
     if (!attempt) return;
@@ -173,6 +175,11 @@ export default function ExamAttemptPage() {
 
   return (
     <div className="min-h-screen bg-slate-50">
+      {showWarning && (
+        <div className="bg-amber-500 px-4 py-2 text-center text-sm font-medium text-white">
+          Leaving this tab during the exam is recorded.
+        </div>
+      )}
       <header className="sticky top-0 z-10 flex items-center justify-between border-b border-slate-200 bg-white px-6 py-3">
         <div>
           <p className="text-sm font-semibold text-slate-900">{exam.title}</p>

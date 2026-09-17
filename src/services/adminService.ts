@@ -202,12 +202,15 @@ export interface ActiveAttempt {
   started_at: string;
   server_deadline_at: string;
   status: string;
+  proctoring_flag_count: number;
 }
 
 export async function fetchActiveAttempts(): Promise<ActiveAttempt[]> {
   const { data, error } = await supabase
     .from('exam_attempts')
-    .select('id, started_at, server_deadline_at, status, profiles(full_name), exams(title)')
+    .select(
+      'id, started_at, server_deadline_at, status, profiles(full_name), exams(title), proctoring_events(count)'
+    )
     .eq('status', 'in_progress')
     .order('started_at', { ascending: false });
   if (error) throw error;
@@ -219,6 +222,7 @@ export async function fetchActiveAttempts(): Promise<ActiveAttempt[]> {
     status: string;
     profiles: { full_name: string };
     exams: { title: string };
+    proctoring_events: { count: number }[];
   };
 
   return ((data ?? []) as unknown as Row[]).map((r) => ({
@@ -228,6 +232,7 @@ export async function fetchActiveAttempts(): Promise<ActiveAttempt[]> {
     started_at: r.started_at,
     server_deadline_at: r.server_deadline_at,
     status: r.status,
+    proctoring_flag_count: r.proctoring_events?.[0]?.count ?? 0,
   }));
 }
 

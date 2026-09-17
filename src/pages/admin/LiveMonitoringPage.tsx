@@ -60,6 +60,7 @@ export default function LiveMonitoringPage() {
                   <th className="px-4 py-3">Exam</th>
                   <th className="px-4 py-3">Started</th>
                   <th className="px-4 py-3">Remaining</th>
+                  <th className="px-4 py-3">Flags</th>
                 </tr>
               </thead>
               <tbody>
@@ -72,6 +73,15 @@ export default function LiveMonitoringPage() {
                     </td>
                     <td className="px-4 py-3">
                       <RemainingTimeCell deadline={a.server_deadline_at} />
+                    </td>
+                    <td className="px-4 py-3">
+                      {a.proctoring_flag_count > 0 ? (
+                        <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700">
+                          {a.proctoring_flag_count} tab switch{a.proctoring_flag_count === 1 ? '' : 'es'}
+                        </span>
+                      ) : (
+                        <span className="text-xs text-slate-300">—</span>
+                      )}
                     </td>
                   </tr>
                 ))}
