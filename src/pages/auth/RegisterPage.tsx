@@ -1,12 +1,11 @@
 ﻿import { useState, type FormEvent } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { AuthLayout } from '@/layouts/AuthLayout';
 import { FormField } from '@/components/FormField';
 import { useAuth } from '@/contexts/AuthContext';
 
 export default function RegisterPage() {
   const { signUp } = useAuth();
-  const navigate = useNavigate();
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');

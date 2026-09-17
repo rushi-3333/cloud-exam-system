@@ -31,7 +31,7 @@ export default function AdminAnalyticsPage() {
     const counts = [0, 0, 0, 0, 0];
     for (const r of results) {
       const idx = Math.min(4, Math.floor(r.percentage / 20.0001));
-      counts[idx] += 1;
+      counts[idx] = (counts[idx] ?? 0) + 1;
     }
     return BUCKETS.map((label, i) => ({ label, count: counts[i] }));
   }, [results]);
