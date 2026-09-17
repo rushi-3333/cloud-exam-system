@@ -1,5 +1,6 @@
 ﻿import { Navigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import HomePage from '@/pages/HomePage';
 
 export default function RootRedirect() {
   const { user, profile, loading } = useAuth();
@@ -13,7 +14,7 @@ export default function RootRedirect() {
   }
 
   if (!user) {
-    return <Navigate to="/login" replace />;
+    return <HomePage />;
   }
 
   if (profile?.role === 'admin') {
