@@ -32,6 +32,7 @@ export default function ExamAttemptPage() {
   const [visited, setVisited] = useState<Set<number>>(new Set([0]));
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle');
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [submitting, setSubmitting] = useState(false);
@@ -97,10 +98,14 @@ export default function ExamAttemptPage() {
     setSubmitting(true);
     try {
       await submitExamViaFunction(attempt.id);
+      navigate('/student/results', { replace: true });
     } catch (err) {
       console.error(err);
-    } finally {
-      navigate('/student/results', { replace: true });
+      submittedRef.current = false;
+      setSubmitting(false);
+      setSubmitError(
+        'Your submission could not be graded right now. Please try submitting again — your answers are safely saved.'
+      );
     }
   }, [attempt, navigate]);
 
@@ -290,6 +295,10 @@ export default function ExamAttemptPage() {
               onJump={goTo}
             />
           </div>
+
+          {submitError && (
+            <p className="mt-3 rounded-lg bg-red-50 p-3 text-xs text-red-700">{submitError}</p>
+          )}
 
           <button
             onClick={() => {
