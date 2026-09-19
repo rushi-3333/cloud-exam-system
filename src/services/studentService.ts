@@ -60,6 +60,17 @@ export async function findActiveAttempt(
   return data as unknown as ExamAttempt | null;
 }
 
+export async function countCompletedAttempts(examId: string, studentId: string): Promise<number> {
+  const { count, error } = await supabase
+    .from('exam_attempts')
+    .select('*', { count: 'exact', head: true })
+    .eq('exam_id', examId)
+    .eq('student_id', studentId)
+    .in('status', ['submitted', 'auto_submitted', 'expired']);
+  if (error) throw error;
+  return count ?? 0;
+}
+
 export async function findCompletedAttempt(
   examId: string,
   studentId: string

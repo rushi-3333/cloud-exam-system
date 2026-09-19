@@ -10,6 +10,7 @@ export interface Exam {
   duration_minutes: number;
   total_marks: number;
   passing_percentage: number;
+  max_attempts: number;
   start_at: string;
   end_at: string;
   status: ExamStatus;

@@ -1,7 +1,7 @@
 ﻿import { supabase } from '@/lib/supabaseClient';
 import type { ExamAttempt } from '@/types/attempt';
 import type { Question } from '@/types/exam';
-import { findActiveAttempt, findCompletedAttempt } from '@/services/studentService';
+import { findActiveAttempt, countCompletedAttempts } from '@/services/studentService';
 
 export interface QuestionForAttempt extends Question {
   options: { id: string; option_text: string; order_index: number }[];
@@ -13,12 +13,16 @@ export interface AnswerState {
   marked_for_review: boolean;
 }
 
-export async function getOrStartAttempt(examId: string, studentId: string): Promise<ExamAttempt> {
+export async function getOrStartAttempt(
+  examId: string,
+  studentId: string,
+  maxAttempts: number
+): Promise<ExamAttempt> {
   const existing = await findActiveAttempt(examId, studentId);
   if (existing) return existing;
 
-  const completed = await findCompletedAttempt(examId, studentId);
-  if (completed) {
+  const completedCount = await countCompletedAttempts(examId, studentId);
+  if (completedCount >= maxAttempts) {
     throw new Error('ALREADY_ATTEMPTED');
   }
 

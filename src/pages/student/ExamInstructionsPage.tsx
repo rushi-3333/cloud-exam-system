@@ -2,7 +2,7 @@
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { StudentLayout } from '@/layouts/StudentLayout';
 import { useAuth } from '@/contexts/AuthContext';
-import { fetchExamById, findActiveAttempt, findCompletedAttempt } from '@/services/studentService';
+import { fetchExamById, findActiveAttempt, countCompletedAttempts } from '@/services/studentService';
 import type { Exam } from '@/types/exam';
 
 export default function ExamInstructionsPage() {
@@ -11,17 +11,17 @@ export default function ExamInstructionsPage() {
   const navigate = useNavigate();
   const [exam, setExam] = useState<Exam | null>(null);
   const [hasActiveAttempt, setHasActiveAttempt] = useState(false);
-  const [alreadyAttempted, setAlreadyAttempted] = useState(false);
+  const [completedCount, setCompletedCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!id || !user) return;
-    Promise.all([fetchExamById(id), findActiveAttempt(id, user.id), findCompletedAttempt(id, user.id)])
-      .then(([examData, activeAttempt, completedAttempt]) => {
+    Promise.all([fetchExamById(id), findActiveAttempt(id, user.id), countCompletedAttempts(id, user.id)])
+      .then(([examData, activeAttempt, count]) => {
         setExam(examData);
         setHasActiveAttempt(!!activeAttempt);
-        setAlreadyAttempted(!!completedAttempt);
+        setCompletedCount(count);
       })
       .catch((err: unknown) => setError(err instanceof Error ? err.message : 'Failed to load'))
       .finally(() => setLoading(false));
@@ -29,6 +29,8 @@ export default function ExamInstructionsPage() {
 
   const now = new Date();
   const isOpen = exam ? now >= new Date(exam.start_at) && now <= new Date(exam.end_at) : false;
+  const attemptsExhausted = exam ? completedCount >= exam.max_attempts : false;
+  const nextAttemptNumber = completedCount + 1;
 
   if (loading) {
     return (
@@ -56,7 +58,7 @@ export default function ExamInstructionsPage() {
         <h1 className="mt-2 text-xl font-semibold text-slate-900">{exam.title}</h1>
         <p className="mt-1 text-sm text-slate-500">{exam.description}</p>
 
-        <div className="mt-6 grid grid-cols-3 gap-4 text-sm">
+        <div className="mt-6 grid grid-cols-4 gap-4 text-sm">
           <div className="rounded-xl border border-slate-200 bg-white p-4">
             <p className="text-xs text-slate-400">Duration</p>
             <p className="font-medium text-slate-900">{exam.duration_minutes} min</p>
@@ -68,6 +70,12 @@ export default function ExamInstructionsPage() {
           <div className="rounded-xl border border-slate-200 bg-white p-4">
             <p className="text-xs text-slate-400">Passing</p>
             <p className="font-medium text-slate-900">{exam.passing_percentage}%</p>
+          </div>
+          <div className="rounded-xl border border-slate-200 bg-white p-4">
+            <p className="text-xs text-slate-400">Attempts used</p>
+            <p className="font-medium text-slate-900">
+              {completedCount} / {exam.max_attempts}
+            </p>
           </div>
         </div>
 
@@ -81,9 +89,10 @@ export default function ExamInstructionsPage() {
           </ul>
         </div>
 
-        {alreadyAttempted && !hasActiveAttempt && (
+        {attemptsExhausted && !hasActiveAttempt && (
           <p className="mt-6 text-sm text-slate-500">
-            You've already attempted this exam. Check{' '}
+            You've used all {exam.max_attempts} attempt{exam.max_attempts === 1 ? '' : 's'} for this
+            exam. Check{' '}
             <Link to="/student/results" className="text-brand-600 hover:underline">
               your results
             </Link>
@@ -91,7 +100,7 @@ export default function ExamInstructionsPage() {
           </p>
         )}
 
-        {!isOpen && !alreadyAttempted && (
+        {!isOpen && !attemptsExhausted && (
           <p className="mt-6 text-sm text-red-600">
             This exam is not currently open (window: {new Date(exam.start_at).toLocaleString()} –{' '}
             {new Date(exam.end_at).toLocaleString()}).
@@ -99,11 +108,15 @@ export default function ExamInstructionsPage() {
         )}
 
         <button
-          disabled={!isOpen || (alreadyAttempted && !hasActiveAttempt)}
+          disabled={!isOpen || (attemptsExhausted && !hasActiveAttempt)}
           onClick={() => navigate(`/student/exams/${exam.id}/attempt`)}
           className="mt-6 rounded-lg bg-brand-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-50"
         >
-          {hasActiveAttempt ? 'Resume exam' : alreadyAttempted ? 'Already attempted' : 'Start exam'}
+          {hasActiveAttempt
+            ? `Resume exam (Attempt ${nextAttemptNumber} of ${exam.max_attempts})`
+            : attemptsExhausted
+            ? 'No attempts remaining'
+            : `Start exam (Attempt ${nextAttemptNumber} of ${exam.max_attempts})`}
         </button>
       </div>
     </StudentLayout>

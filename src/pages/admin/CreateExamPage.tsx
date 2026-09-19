@@ -15,6 +15,7 @@ export default function CreateExamPage() {
     duration_minutes: 60,
     total_marks: 100,
     passing_percentage: 40,
+    max_attempts: 1,
     start_at: '',
     end_at: '',
   });
@@ -87,7 +88,7 @@ export default function CreateExamPage() {
             onChange={(e) => setForm({ ...form, subject: e.target.value })}
           />
 
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
             <FormField
               id="duration"
               label="Duration (minutes)"
@@ -115,6 +116,15 @@ export default function CreateExamPage() {
               required
               value={form.passing_percentage}
               onChange={(e) => setForm({ ...form, passing_percentage: Number(e.target.value) })}
+            />
+            <FormField
+              id="maxAttempts"
+              label="Max attempts"
+              type="number"
+              min={1}
+              required
+              value={form.max_attempts}
+              onChange={(e) => setForm({ ...form, max_attempts: Number(e.target.value) })}
             />
           </div>
 

@@ -1,7 +1,7 @@
 ﻿import { useCallback, useEffect, useRef, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { fetchExamById } from '@/services/studentService';
+import { fetchExamById, countCompletedAttempts } from '@/services/studentService';
 import {
   getOrStartAttempt,
   fetchQuestionsForAttempt,
@@ -36,6 +36,7 @@ export default function ExamAttemptPage() {
   const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle');
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [submitting, setSubmitting] = useState(false);
+  const [attemptNumber, setAttemptNumber] = useState<number | null>(null);
   const submittedRef = useRef(false);
 
   useEffect(() => {
@@ -45,9 +46,12 @@ export default function ExamAttemptPage() {
         const examData = await fetchExamById(examId);
         setExam(examData);
 
+        const priorCompletedCount = await countCompletedAttempts(examId, user.id);
+        setAttemptNumber(priorCompletedCount + 1);
+
         let attemptData: ExamAttempt;
         try {
-          attemptData = await getOrStartAttempt(examId, user.id);
+          attemptData = await getOrStartAttempt(examId, user.id, examData.max_attempts);
         } catch (attemptErr) {
           if (attemptErr instanceof Error && attemptErr.message === 'ALREADY_ATTEMPTED') {
             navigate('/student/results', { replace: true });
@@ -187,7 +191,14 @@ export default function ExamAttemptPage() {
       )}
       <header className="sticky top-0 z-10 flex items-center justify-between border-b border-slate-200 bg-white px-6 py-3">
         <div>
-          <p className="text-sm font-semibold text-slate-900">{exam.title}</p>
+          <p className="text-sm font-semibold text-slate-900">
+            {exam.title}
+            {attemptNumber !== null && (
+              <span className="ml-2 font-normal text-slate-400">
+                Attempt {attemptNumber} of {exam.max_attempts}
+              </span>
+            )}
+          </p>
           <p className="text-xs text-slate-500">
             {answeredCount} answered · {unansweredCount} unanswered
           </p>
