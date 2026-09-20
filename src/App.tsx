@@ -21,6 +21,8 @@ import AdminResultsPage from '@/pages/admin/ResultsPage';
 import AdminAnalyticsPage from '@/pages/admin/AnalyticsPage';
 import AdminNotificationsPage from '@/pages/admin/NotificationsPage';
 import LiveMonitoringPage from '@/pages/admin/LiveMonitoringPage';
+import AdminStudentsPage from '@/pages/admin/StudentsPage';
+import AuditLogsPage from '@/pages/admin/AuditLogsPage';
 
 export default function App() {
   return (
@@ -158,6 +160,22 @@ export default function App() {
             element={
               <ProtectedRoute requireRole="admin">
                 <LiveMonitoringPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/students"
+            element={
+              <ProtectedRoute requireRole="admin">
+                <AdminStudentsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/audit-logs"
+            element={
+              <ProtectedRoute requireRole="admin">
+                <AuditLogsPage />
               </ProtectedRoute>
             }
           />

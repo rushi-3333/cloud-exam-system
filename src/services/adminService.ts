@@ -59,6 +59,7 @@ export interface ExamInput {
   duration_minutes: number;
   total_marks: number;
   passing_percentage: number;
+  max_attempts: number;
   start_at: string;
   end_at: string;
 }
@@ -139,6 +140,7 @@ export async function createQuestion(
 export interface ResultWithDetails {
   id: string;
   attempt_id: string;
+  student_id: string;
   marks_obtained: number;
   total_marks: number;
   percentage: number;
@@ -173,6 +175,7 @@ export async function fetchAllResults(): Promise<ResultWithDetails[]> {
     pass_status: 'pass' | 'fail';
     created_at: string;
     exam_attempts: {
+      student_id: string;
       exams: { title: string; subject: string };
       profiles: { full_name: string };
     };
@@ -181,6 +184,7 @@ export async function fetchAllResults(): Promise<ResultWithDetails[]> {
   return ((data ?? []) as unknown as Row[]).map((r) => ({
     id: r.id,
     attempt_id: r.attempt_id,
+    student_id: r.exam_attempts?.student_id ?? '',
     marks_obtained: r.marks_obtained,
     total_marks: r.total_marks,
     percentage: r.percentage,
@@ -192,6 +196,64 @@ export async function fetchAllResults(): Promise<ResultWithDetails[]> {
     student_name: r.exam_attempts?.profiles?.full_name ?? 'Unknown',
     exam_title: r.exam_attempts?.exams?.title ?? 'Unknown exam',
     exam_subject: r.exam_attempts?.exams?.subject ?? '',
+  }));
+}
+
+export interface StudentSummary {
+  id: string;
+  full_name: string;
+  created_at: string;
+}
+
+export async function fetchStudents(): Promise<StudentSummary[]> {
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('id, full_name, created_at')
+    .eq('role', 'student')
+    .order('created_at', { ascending: false });
+  if (error) throw error;
+  return (data ?? []) as unknown as StudentSummary[];
+}
+
+export interface AuditLogEntry {
+  id: string;
+  user_id: string | null;
+  actor_name: string;
+  action: string;
+  entity: string;
+  entity_id: string | null;
+  metadata: Record<string, unknown> | null;
+  created_at: string;
+}
+
+export async function fetchAuditLogs(limit = 100): Promise<AuditLogEntry[]> {
+  const { data, error } = await supabase
+    .from('audit_logs')
+    .select('id, user_id, action, entity, entity_id, metadata, created_at, profiles(full_name)')
+    .order('created_at', { ascending: false })
+    .limit(limit);
+  if (error) throw error;
+
+  type Row = {
+    id: string;
+    user_id: string | null;
+    action: string;
+    entity: string;
+    entity_id: string | null;
+    metadata: Record<string, unknown> | null;
+    created_at: string;
+    profiles: { full_name: string } | null;
+  };
+
+  return ((data ?? []) as unknown as Row[]).map((r) => ({
+    id: r.id,
+    user_id: r.user_id,
+    actor_name: r.profiles?.full_name ?? 'System',
+    action: r.action,
+    entity: r.entity,
+    entity_id: r.entity_id,
+    metadata: r.metadata,
+    created_at: r.created_at,
   }));
 }
 
