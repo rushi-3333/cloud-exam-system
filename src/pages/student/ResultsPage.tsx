@@ -1,4 +1,5 @@
 ﻿import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { StudentLayout } from '@/layouts/StudentLayout';
 import { useAuth } from '@/contexts/AuthContext';
 import { fetchMyResults } from '@/services/studentService';
@@ -36,9 +37,10 @@ export default function StudentResultsPage() {
 
         <div className="mt-6 space-y-3">
           {results.map((r) => (
-            <div
+            <Link
+              to={`/student/results/${r.attempt_id}`}
               key={r.id}
-              className="flex items-center justify-between rounded-xl border border-slate-200 bg-white p-4"
+              className="flex items-center justify-between rounded-xl border border-slate-200 bg-white p-4 hover:border-brand-300"
             >
               <div>
                 <p className="text-sm font-medium text-slate-900">{r.exam?.title}</p>
@@ -60,7 +62,7 @@ export default function StudentResultsPage() {
                   {r.pass_status.toUpperCase()}
                 </span>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
 

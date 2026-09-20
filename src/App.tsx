@@ -10,6 +10,7 @@ import StudentExamsPage from '@/pages/student/ExamsPage';
 import ExamInstructionsPage from '@/pages/student/ExamInstructionsPage';
 import ExamAttemptPage from '@/pages/student/ExamAttemptPage';
 import StudentResultsPage from '@/pages/student/ResultsPage';
+import ResultDetailPage from '@/pages/student/ResultDetailPage';
 import StudentAnalyticsPage from '@/pages/student/AnalyticsPage';
 import StudentNotificationsPage from '@/pages/student/NotificationsPage';
 import AdminDashboardPage from '@/pages/admin/DashboardPage';
@@ -71,6 +72,14 @@ export default function App() {
             element={
               <ProtectedRoute requireRole="student">
                 <StudentResultsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/student/results/:id"
+            element={
+              <ProtectedRoute requireRole="student">
+                <ResultDetailPage />
               </ProtectedRoute>
             }
           />

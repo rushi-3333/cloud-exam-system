@@ -45,6 +45,41 @@ export async function fetchMyResults(studentId: string): Promise<(ExamResult & {
   }));
 }
 
+export interface ResultBreakdownRow {
+  question_id: string;
+  question_text: string;
+  marks: number;
+  order_index: number;
+  selected_option_id: string | null;
+  selected_option_text: string | null;
+  correct_option_id: string | null;
+  correct_option_text: string | null;
+  is_correct: boolean;
+}
+
+export async function fetchResultBreakdown(attemptId: string): Promise<ResultBreakdownRow[]> {
+  const { data, error } = await supabase.rpc('get_result_breakdown', {
+    p_attempt_id: attemptId,
+  });
+  if (error) throw error;
+  return (data ?? []) as unknown as ResultBreakdownRow[];
+}
+
+export async function fetchResultByAttempt(
+  attemptId: string
+): Promise<ExamResult & { exam: Exam }> {
+  const { data, error } = await supabase
+    .from('results')
+    .select('*, exam_attempts!inner(exams(*))')
+    .eq('attempt_id', attemptId)
+    .single();
+  if (error) throw error;
+
+  type Row = ExamResult & { exam_attempts: { exams: Exam } };
+  const row = data as unknown as Row;
+  return { ...row, exam: row.exam_attempts.exams };
+}
+
 export async function findActiveAttempt(
   examId: string,
   studentId: string
