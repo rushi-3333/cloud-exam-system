@@ -137,6 +137,68 @@ export async function createQuestion(
   if (oError) throw oError;
 }
 
+export async function updateQuestionText(
+  questionId: string,
+  input: { question_text: string; marks: number }
+): Promise<void> {
+  const { error } = await supabase.from('questions').update(input).eq('id', questionId);
+  if (error) throw error;
+}
+
+export async function updateQuestionOptionText(
+  optionId: string,
+  optionText: string
+): Promise<void> {
+  const { error } = await supabase
+    .from('question_options')
+    .update({ option_text: optionText })
+    .eq('id', optionId);
+  if (error) throw error;
+}
+
+export async function setCorrectOption(
+  newCorrectOptionId: string,
+  oldCorrectOptionId: string | null
+): Promise<void> {
+  if (oldCorrectOptionId && oldCorrectOptionId !== newCorrectOptionId) {
+    const { error: clearErr } = await supabase
+      .from('question_options')
+      .update({ is_correct: false })
+      .eq('id', oldCorrectOptionId);
+    if (clearErr) throw clearErr;
+  }
+  const { error } = await supabase
+    .from('question_options')
+    .update({ is_correct: true })
+    .eq('id', newCorrectOptionId);
+  if (error) throw error;
+}
+
+export async function swapQuestionOrder(
+  questionAId: string,
+  orderA: number,
+  questionBId: string,
+  orderB: number
+): Promise<void> {
+  const { error: e1 } = await supabase
+    .from('questions')
+    .update({ order_index: -1 })
+    .eq('id', questionAId);
+  if (e1) throw e1;
+
+  const { error: e2 } = await supabase
+    .from('questions')
+    .update({ order_index: orderA })
+    .eq('id', questionBId);
+  if (e2) throw e2;
+
+  const { error: e3 } = await supabase
+    .from('questions')
+    .update({ order_index: orderB })
+    .eq('id', questionAId);
+  if (e3) throw e3;
+}
+
 export interface ResultWithDetails {
   id: string;
   attempt_id: string;
